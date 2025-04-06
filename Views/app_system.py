@@ -140,12 +140,12 @@ def Recommendation_Program(df, model_to_margin):
     return df_recom
 
 # Streamlit App UI
-st.set_page_config(page_title="PIO Cost Recommendation Tool", layout="centered")
+st.set_page_config(page_title="Cost Analysis and Recommendation", layout="centered")
 st.title("Cost Analysis and Recommendation Program")
 
 st.markdown("Upload Required Files:")
-dsrp_file = st.file_uploader("PIO Parts Master", type="xlsx")
-pio_file = st.file_uploader("DSRP CAL PA", type="xlsx")
+pio_file = st.file_uploader("PIO Parts Master", type="xlsx")
+dsrp_file = st.file_uploader("DSRP CAL PA", type="xlsx")
 segment_file = st.file_uploader("Basic Information", type="xlsx")
 
 st.caption("Formats accepted: .xlsx")
