@@ -151,10 +151,10 @@ with col1:
     pio_file = st.file_uploader("📦 PIO Parts Master", type="xlsx", key="dsrp")
 
 with col2:
-    dsrp_file = st.file_uploader("💰 DSRP Price Sheet", type="xlsx", key="pio")
+    dsrp_file = st.file_uploader("💰 DSRP CAL PA Latest", type="xlsx", key="pio")
 
 with col3:
-    segment_file = st.file_uploader("📋 Segment & Type Mapping", type="xlsx", key="segment")
+    segment_file = st.file_uploader("📋 Segment, Type & Margin Mapping", type="xlsx", key="segment")
 
 st.caption("Accepted format: .xlsx only. All 3 files are required.")
 
