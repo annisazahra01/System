@@ -140,47 +140,52 @@ def Recommendation_Program(df, model_to_margin):
     return df_recom
 
 # Streamlit App UI
-st.set_page_config(page_title="Cost Analysis and Recommendation", layout="centered")
+st.set_page_config(page_title="PIO Cost Recommendation Tool", layout="centered")
 st.title("Cost Analysis and Recommendation Program")
 
-st.markdown("Upload Required Files:")
-pio_file = st.file_uploader("PIO Parts Master", type="xlsx")
-dsrp_file = st.file_uploader("DSRP CAL PA", type="xlsx")
-segment_file = st.file_uploader("Basic Information", type="xlsx")
+st.markdown("### 📂 Upload Required Files")
 
-st.caption("Formats accepted: .xlsx")
+col1, col2 = st.columns(2)
+with col1:
+    dsrp_file = st.file_uploader("📦 PIO Parts Master", type="xlsx")
+with col2:
+    pio_file = st.file_uploader("💰 DSRP Price Sheet", type="xlsx")
+segment_file = st.file_uploader("📋 Segment & Type Mapping", type="xlsx")
 
-generate = st.button("🚀 Generate Report")
+st.caption("Accepted format: .xlsx only. All 3 files are required.")
 
-if generate and dsrp_file and pio_file and segment_file:
-    with st.spinner("Processing..."):
-        df_combine, model_to_margin = Dataframe(dsrp_file, pio_file, segment_file)
+if dsrp_file and pio_file and segment_file:
+    if st.button("🚀 Generate Recommendation Report"):
+        with st.spinner("Processing your files. This may take a moment..."):
+            df_combine, model_to_margin = Dataframe(dsrp_file, pio_file, segment_file)
 
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            for jenis in df_combine['Jenis'].dropna().unique():
-                clean_name = jenis.strip().title().replace(' ', '')[:31]
-                subset_df = df_combine[df_combine['Jenis'] == jenis].copy()
-                df_result = Recommendation_Program(subset_df, model_to_margin)
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                for jenis in df_combine['Jenis'].dropna().unique():
+                    clean_name = jenis.strip().title().replace(' ', '')[:31]
+                    subset_df = df_combine[df_combine['Jenis'] == jenis].copy()
+                    df_result = Recommendation_Program(subset_df, model_to_margin)
 
-                df_result.to_excel(writer, sheet_name=clean_name, index=False)
-                workbook = writer.book
-                worksheet = writer.sheets[clean_name]
+                    df_result.to_excel(writer, sheet_name=clean_name, index=False)
+                    workbook = writer.book
+                    worksheet = writer.sheets[clean_name]
 
-                header_format = workbook.add_format({'bold': True, 'bg_color': '#FFFF99', 'border': 1})
-                regular_format = workbook.add_format({'bg_color': '#DAECF4', 'border': 1})
-                focus_format = workbook.add_format({'bg_color': '#A7D3F5', 'border': 1})
+                    header_format = workbook.add_format({'bold': True, 'bg_color': '#FFFF99', 'border': 1})
+                    regular_format = workbook.add_format({'bg_color': '#DAECF4', 'border': 1})
+                    focus_format = workbook.add_format({'bg_color': '#A7D3F5', 'border': 1})
 
-                for col_num, col_name in enumerate(df_result.columns):
-                    max_len = max(df_result[col_name].astype(str).map(len).max(), len(col_name)) + 2
-                    worksheet.set_column(col_num, col_num, max_len)
-                    worksheet.write(0, col_num, col_name, header_format)
+                    for col_num, col_name in enumerate(df_result.columns):
+                        max_len = max(df_result[col_name].astype(str).map(len).max(), len(col_name)) + 2
+                        worksheet.set_column(col_num, col_num, max_len)
+                        worksheet.write(0, col_num, col_name, header_format)
 
-                last_col_index = df_result.columns.get_loc('Rank')
-                for row_num, rec in enumerate(df_result['Recommendation'], start=1):
-                    row_format = focus_format if rec != '-' else regular_format
-                    for col in range(last_col_index + 1):
-                        worksheet.write(row_num, col, df_result.iloc[row_num - 1, col], row_format)
+                    last_col_index = df_result.columns.get_loc('Rank')
+                    for row_num, rec in enumerate(df_result['Recommendation'], start=1):
+                        row_format = focus_format if rec != '-' else regular_format
+                        for col in range(last_col_index + 1):
+                            worksheet.write(row_num, col, df_result.iloc[row_num - 1, col], row_format)
 
-        st.success("✅ Report Generated!")
-        st.download_button("📥 Download Report", data=output.getvalue(), file_name="Report_Cost_Analysis.xlsx")
+            st.success("✅ Report Generated!")
+            st.download_button("📥 Download Report", data=output.getvalue(), file_name="Report_Cost_Analysis.xlsx")
+else:
+    st.info("Please upload all required files to enable report generation.")
