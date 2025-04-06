@@ -148,10 +148,10 @@ st.markdown("### 📂 Upload Required Files")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    dsrp_file = st.file_uploader("📦 PIO Parts Master", type="xlsx", key="dsrp")
+    pio_file = st.file_uploader("📦 PIO Parts Master", type="xlsx", key="dsrp")
 
 with col2:
-    pio_file = st.file_uploader("💰 DSRP Price Sheet", type="xlsx", key="pio")
+    dsrp_file = st.file_uploader("💰 DSRP Price Sheet", type="xlsx", key="pio")
 
 with col3:
     segment_file = st.file_uploader("📋 Segment & Type Mapping", type="xlsx", key="segment")
