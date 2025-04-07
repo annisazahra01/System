@@ -22,6 +22,59 @@ def extract_model_keyword(text):
             return 'HILUX PICK'
     return words[0].upper() if words else ''
 
+def group_parts(df, grouping_type="Electrical"):
+    grouped = defaultdict(list)
+    part_names = df['Part Name'].unique().tolist()
+    grouping_type = grouping_type.lower()
+
+    for name in part_names:
+        original = name.strip()
+        cleaned = name.replace('-', ' ')
+        cleaned = re.sub(r'\([^)]*\)', '', cleaned)
+        cleaned = cleaned.lower().strip()
+
+        if grouping_type == "textile":
+            # Textile logic: floor mat grouping
+            cleaned = re.sub(r'[^\w\s]', ' ', cleaned)
+            tokens = cleaned.split()
+
+            if 'floor' in tokens and 'mat' in tokens:
+                is_gr = 'gr' in tokens
+                has_fr = 'fr' in tokens or 'front' in tokens
+                has_rr = 'rr' in tokens
+
+                if has_fr:
+                    base = 'floor mat gr fr' if is_gr else 'floor mat fr'
+                elif has_rr:
+                    base = 'floor mat gr rr' if is_gr else 'floor mat rr'
+                else:
+                    base = 'floor mat gr' if is_gr else 'floor mat'
+            elif re.search(r',\s*set', name.lower()):
+                base = re.split(r',\s*set', name.lower())[0].strip()
+                base = re.sub(r'[^\w\s]', ' ', base)
+                base = ' '.join(base.split()[:3])
+            else:
+                base = ' '.join(tokens[:3])
+
+        elif grouping_type == "plastic":
+            # Plastic logic: ambil sebelum ,set atau 3 kata
+            if re.search(r',\s*set', cleaned):
+                base = re.split(r',\s*set', cleaned)[0].strip()
+            else:
+                cleaned_no_comma = re.sub(r'[^\w\s]', '', cleaned)
+                tokens = cleaned_no_comma.split()
+                base = ' '.join(tokens[:3])
+
+        else:
+            # Default (Electrical, Safety, Multimedia): 2 kata pertama
+            clean = re.sub(r'\([^)]*\)', '', name.replace('-', ' '))
+            clean = re.sub(r'[^\w\s]', '', clean).lower().strip()
+            base = ' '.join(clean.split()[:2])
+
+        grouped[base].append(original)
+
+    return dict(grouped)
+
 def Dataframe(dsrp_file, pio_file, segment_file):
     df_dsrp = pd.concat(pd.read_excel(dsrp_file, sheet_name=None).values(), ignore_index=True)
     df_pio = pd.concat(pd.read_excel(pio_file, sheet_name=None).values(), ignore_index=True)
