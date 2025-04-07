@@ -145,16 +145,9 @@ st.title("Cost Analysis and Recommendation Program")
 
 st.markdown("### 📂 Upload Required Files")
 
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    pio_file = st.file_uploader("📦 PIO Parts Master", type="xlsx", key="dsrp")
-
-with col2:
-    dsrp_file = st.file_uploader("💰 DSRP CAL PA Latest", type="xlsx", key="pio")
-
-with col3:
-    segment_file = st.file_uploader("📋 Segment, Type & Margin Mapping", type="xlsx", key="segment")
+pio_file = st.file_uploader("📦 PIO Parts Master", type="xlsx", key="dsrp")
+dsrp_file = st.file_uploader("💰 DSRP CAL PA Latest", type="xlsx", key="pio")
+segment_file = st.file_uploader("📋 Segment, Type & Margin Mapping", type="xlsx", key="segment")
 
 st.caption("Accepted format: .xlsx only. All 3 files are required.")
 
