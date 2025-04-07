@@ -62,16 +62,14 @@ def Dataframe(dsrp_file, pio_file, segment_file):
     df_combine['Margin'] = model_keywords.map(model_to_margin)
     return df_combine, model_to_margin
 
-def Recommendation_Program(df, model_to_margin):
-    grouped = defaultdict(list)
-    for name in df['Part Name'].unique():
-        clean = name.replace('-', ' ')
-        clean = re.sub(r'\([^)]*\)', '', clean)
-        clean = re.sub(r'[^\w\s]', '', clean).lower().strip()
-        base = ' '.join(clean.split()[:2])
-        grouped[base].append(name.strip())
+def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
+    grouped = group_parts(df, grouping_type)
 
-    partname_to_group = {str(part).strip().casefold(): group for group, parts in grouped.items() for part in parts}
+    partname_to_group = {
+        str(part).strip().casefold(): group
+        for group, parts in grouped.items()
+        for part in parts
+    }
     df['Group'] = df['Part Name'].apply(lambda x: partname_to_group.get(str(x).strip().casefold()))
 
     segment_order = ['A', 'B', 'C', 'D', 'Comm']
@@ -161,7 +159,7 @@ if dsrp_file and pio_file and segment_file:
                 for jenis in df_combine['Jenis'].dropna().unique():
                     clean_name = jenis.strip().title().replace(' ', '')[:31]
                     subset_df = df_combine[df_combine['Jenis'] == jenis].copy()
-                    df_result = Recommendation_Program(subset_df, model_to_margin)
+                    df_result = Recommendation_Program(subset_df, model_to_margin, grouping_type=jenis)
 
                     df_result.to_excel(writer, sheet_name=clean_name, index=False)
                     workbook = writer.book
