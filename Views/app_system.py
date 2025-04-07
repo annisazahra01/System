@@ -80,7 +80,10 @@ def group_parts(df, grouping_type="Electrical"):
                 elif 'q' in tokens and 'grade' in tokens:
                     base = 'tam audio kit q grade'
             elif 'dvr' in tokens:
-                base = 'dvr'
+                if 'wire' in tokens or 'harness' in tokens:
+                    base = 'wire harness dvr'
+                else:
+                    base = 'dvr'
             elif 'receiver' in tokens and 'assy' in tokens:
                 if 'display' in tokens:
                     base = 'receiver assy display'
