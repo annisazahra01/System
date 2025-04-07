@@ -140,7 +140,7 @@ def Recommendation_Program(df, model_to_margin):
     return df_recom
 
 # Streamlit App UI
-st.set_page_config(page_title="PIO Cost Recommendation Tool", layout="centered")
+st.set_page_config(page_title="Cost Analysis and Recommendation Program", layout="centered")
 st.title("Cost Analysis and Recommendation Program")
 
 st.markdown("### 📂 Upload Required Files")
