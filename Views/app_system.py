@@ -66,6 +66,9 @@ def group_parts(df, grouping_type="Electrical"):
                 base = ' '.join(tokens[:3])
 
         elif grouping_type == "multimedia":
+            cleaned = re.sub(r'[^\w\s]', ' ', cleaned)
+            tokens = cleaned.split()
+            
             if '21cy' in tokens:
                 base = ' '.join(tokens[:6])  # Untuk 21CY, ambil 6 kata
             elif 'tam' in tokens and 'audio' in tokens and 'kit' in tokens:
