@@ -65,6 +65,27 @@ def group_parts(df, grouping_type="Electrical"):
                 tokens = cleaned_no_comma.split()
                 base = ' '.join(tokens[:3])
 
+        elif grouping_type == "multimedia":
+            if '21cy' in tokens:
+                base = ' '.join(tokens[:6])  # Untuk 21CY, ambil 6 kata
+            elif 'tam' in tokens and 'audio' in tokens and 'kit' in tokens:
+                base = 'tam audio kit'
+                if 'g' in tokens and 'grade' in tokens:
+                    base = 'tam audio kit g grade'
+                elif 'v' in tokens and 'grade' in tokens:
+                    base = 'tam audio kit v grade'
+                elif 'q' in tokens and 'grade' in tokens:
+                    base = 'tam audio kit q grade'
+            elif 'dvr' in tokens:
+                base = 'dvr'
+            elif 'receiver' in tokens and 'assy' in tokens:
+                if 'display' in tokens:
+                    base = 'receiver assy display'
+                else:
+                    base = 'receiver assy'
+            else:
+                base = ' '.join(tokens[:3])  # Default multimedia: 3 kata
+
         else:
             # Default (Electrical, Safety, Multimedia): 2 kata pertama
             clean = re.sub(r'\([^)]*\)', '', name.replace('-', ' '))
