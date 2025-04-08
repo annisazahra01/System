@@ -274,7 +274,10 @@ if dsrp_file and pio_file and segment_file:
                     for row_num, rec in enumerate(df_result['Recommendation'], start=1):
                         row_format = focus_format if rec != '-' else regular_format
                         for col in range(last_col_index + 1):
-                            worksheet.write(row_num, col, df_result.iloc[row_num - 1, col], row_format)
+                            value = df_result.iloc[row_num - 1, col]
+                            if pd.isna(value) or (isinstance(value, float) and not np.isfinite(value)):
+                                value = '-'
+                            worksheet.write(row_num, col, value, row_format)
 
             # === SUMMARY REPORT ===
             output_summary = BytesIO()
@@ -300,11 +303,15 @@ if dsrp_file and pio_file and segment_file:
                     for row_num, rec in enumerate(df_summary['Recommendation'], start=1):
                         row_format = focus_format if rec == 'Lowest' else regular_format
                         for col in range(len(df_summary.columns)):
-                            worksheet.write(row_num, col, df_summary.iloc[row_num - 1, col], row_format)
+                            value = df_summary.iloc[row_num - 1, col]
+                            if pd.isna(value) or (isinstance(value, float) and not np.isfinite(value)):
+                                value = '-'
+                            worksheet.write(row_num, col, value, row_format)
 
             st.success("✅ Reports Generated!")
-
-            st.download_button("📥 Download Detailed Recommendation Report", data=output_detailed.getvalue(), file_name="Detailed_Recommendation_Report.xlsx")
+            
             st.download_button("📥 Download Summary Recommendation Report", data=output_summary.getvalue(), file_name="Summary_Recommendation_Report.xlsx")
+            st.download_button("📥 Download Detailed Recommendation Report", data=output_detailed.getvalue(), file_name="Detailed_Recommendation_Report.xlsx")
+
 else:
     st.info("Please upload all required files to enable report generation.")
