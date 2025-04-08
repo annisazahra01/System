@@ -244,10 +244,6 @@ pio_file = st.file_uploader("📦 PIO Parts Master", type="xlsx", key="pio")
 dsrp_file = st.file_uploader("💰 DSRP CAL PA Latest", type="xlsx", key="dsrp")
 segment_file = st.file_uploader("📋 Segment, Type & Margin Mapping", type="xlsx", key="segment")
 
-st.markdown("### 📑 Select Report Type")
-gen_summary = st.checkbox("Generate Summary Recommendation Report", value=True)
-gen_detailed = st.checkbox("Generate Detailed Recommendation Report", value=True)
-
 if dsrp_file and pio_file and segment_file:
     if st.button("🚀 Generate Reports"):
         with st.spinner("Processing your files. This may take a moment..."):
