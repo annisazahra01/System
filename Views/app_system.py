@@ -311,9 +311,9 @@ if dsrp_file and pio_file and segment_file:
 
                     header_format = workbook.add_format({'bold': True, 'bg_color': '#FFFF99', 'border': 1})
                     lowest_format = workbook.add_format({'bg_color': '#A7D3F5', 'border': 1})
-                    candidate_format = workbook.add_format({'bg_color': '#1565C0', 'border': 1, 'font_color': 'white'})
+                    candidate_format = workbook.add_format({'bg_color': '#0F243E', 'border': 1, 'font_color': 'white'})
                     number_lowest_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#A7D3F5', 'border': 1})
-                    number_candidate_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#1565C0', 'border': 1, 'font_color': 'white'})
+                    number_candidate_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#0F243E', 'border': 1, 'font_color': 'white'})
 
                     for col_num, col_name in enumerate(df_summary.columns):
                         max_len = max(df_summary[col_name].astype(str).map(len).max(), len(col_name)) + 2
