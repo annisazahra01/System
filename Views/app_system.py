@@ -264,6 +264,8 @@ if dsrp_file and pio_file and segment_file:
                     header_format = workbook.add_format({'bold': True, 'bg_color': '#FFFF99', 'border': 1})
                     regular_format = workbook.add_format({'bg_color': '#DAECF4', 'border': 1})
                     focus_format = workbook.add_format({'bg_color': '#A7D3F5', 'border': 1})
+                    number_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#DAECF4', 'border': 1})
+                    number_focus_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#A7D3F5', 'border': 1})
 
                     for col_num, col_name in enumerate(df_result.columns):
                         max_len = max(df_result[col_name].astype(str).map(len).max(), len(col_name)) + 2
@@ -275,9 +277,17 @@ if dsrp_file and pio_file and segment_file:
                         row_format = focus_format if rec != '-' else regular_format
                         for col in range(last_col_index + 1):
                             value = df_result.iloc[row_num - 1, col]
+                            col_name = df_result.columns[col]
+                            is_number_col = col_name in ['Part Cost', 'OTR']
+
                             if pd.isna(value) or (isinstance(value, float) and not np.isfinite(value)):
-                                value = '-'
-                            worksheet.write(row_num, col, value, row_format)
+                                worksheet.write(row_num, col, '-', row_format)
+                            else:
+                                if is_number_col:
+                                    fmt = number_focus_format if row_format == focus_format else number_format
+                                    worksheet.write_number(row_num, col, value, fmt)
+                                else:
+                                    worksheet.write(row_num, col, value, row_format)
 
             # === SUMMARY REPORT ===
             output_summary = BytesIO()
@@ -294,6 +304,8 @@ if dsrp_file and pio_file and segment_file:
                     header_format = workbook.add_format({'bold': True, 'bg_color': '#FFFF99', 'border': 1})
                     regular_format = workbook.add_format({'bg_color': '#DAECF4', 'border': 1})
                     focus_format = workbook.add_format({'bg_color': '#A7D3F5', 'border': 1})
+                    number_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#DAECF4', 'border': 1})
+                    number_focus_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#A7D3F5', 'border': 1})
 
                     for col_num, col_name in enumerate(df_summary.columns):
                         max_len = max(df_summary[col_name].astype(str).map(len).max(), len(col_name)) + 2
@@ -304,9 +316,17 @@ if dsrp_file and pio_file and segment_file:
                         row_format = focus_format if rec == 'Lowest' else regular_format
                         for col in range(len(df_summary.columns)):
                             value = df_summary.iloc[row_num - 1, col]
+                            col_name = df_summary.columns[col]
+                            is_number_col = col_name in ['Part Cost', 'OTR']
+
                             if pd.isna(value) or (isinstance(value, float) and not np.isfinite(value)):
-                                value = '-'
-                            worksheet.write(row_num, col, value, row_format)
+                                worksheet.write(row_num, col, '-', row_format)
+                            else:
+                                if is_number_col:
+                                    fmt = number_focus_format if row_format == focus_format else number_format
+                                    worksheet.write_number(row_num, col, value, fmt)
+                                else:
+                                    worksheet.write(row_num, col, value, row_format)
 
             st.success("✅ Reports Generated!")
             
