@@ -134,7 +134,7 @@ def Dataframe(dsrp_file, pio_file, segment_file): ## Function data cleaning & in
 
 # === REKOMENDASI ===
 
-def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"): #Function untuk detailed recommendation report
+def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
     grouped = group_parts(df, grouping_type)
     partname_to_group = {str(part).strip().casefold(): group for group, parts in grouped.items() for part in parts}
     df['Group'] = df['Part Name'].apply(lambda x: partname_to_group.get(str(x).strip().casefold()))
@@ -173,14 +173,14 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"): #Fu
 
                 focus_dict = focus_row.to_dict()
                 focus_dict['No'] = group_number
-                focus_dict['Recommendation'] = round(avg_cost)
+                focus_dict['Remark'] = round(avg_cost)
                 focus_dict['Gap'] = round(gap)
                 final_rows.append(focus_dict)
 
                 for _, cand in candidates.iterrows():
                     cand_dict = cand.to_dict()
                     cand_dict['No'] = group_number
-                    cand_dict['Recommendation'] = '-'
+                    cand_dict['Remark'] = '-'
                     cand_dict['Gap'] = '-'
                     final_rows.append(cand_dict)
 
@@ -189,7 +189,7 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"): #Fu
 
     df_recom = pd.DataFrame(final_rows)
 
-    fokus_df = df_recom[df_recom['Recommendation'] != '-'].copy()
+    fokus_df = df_recom[df_recom['Remark'] != '-'].copy()
     fokus_df['Segment'] = pd.Categorical(fokus_df['Segment'], categories=segment_order, ordered=True)
     fokus_df['Margin'] = fokus_df['Model Type'].apply(lambda x: model_to_margin.get(extract_model_keyword(x), np.nan))
     fokus_df['Gap'] = pd.to_numeric(fokus_df['Gap'], errors='coerce')
@@ -200,6 +200,7 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"): #Fu
     df_recom['Rank'] = df_recom.groupby('No')['Rank'].transform('first')
     df_recom = df_recom.sort_values(by=['Rank', 'No'])
     df_recom = df_recom.drop(columns=['No'])
+    df_recom['Notes'] = ''  # Tambah kolom kosong
     return df_recom
 
 def Summary_Recommendation_Report(df, grouping_type="Electrical"):
@@ -217,29 +218,27 @@ def Summary_Recommendation_Report(df, grouping_type="Electrical"):
         df_group_sorted = df_group.sort_values(by='Part Cost')
         lowest_cost = df_group_sorted['Part Cost'].min()
 
-        # Cek apakah ada model lain dengan Part Cost > lowest_cost
         if any(df_group_sorted['Part Cost'] > lowest_cost):
-            # Ambil semua yang cost-nya == lowest_cost
             focus_models = df_group_sorted[df_group_sorted['Part Cost'] == lowest_cost].copy()
             for _, row in focus_models.iterrows():
                 row_dict = row.to_dict()
                 row_dict['No'] = group_number
-                row_dict['Recommendation'] = 'Lowest'
+                row_dict['Remark'] = 'Lowest'
                 final_rows.append(row_dict)
 
-            # Kandidat yang lebih mahal
             candidates = df_group_sorted[df_group_sorted['Part Cost'] > lowest_cost].copy()
             candidates = candidates.sort_values(by=['Part Cost', 'Segment'])
             for _, cand in candidates.iterrows():
                 cand_dict = cand.to_dict()
                 cand_dict['No'] = group_number
-                cand_dict['Recommendation'] = 'Candidate'
+                cand_dict['Remark'] = 'Candidate'
                 final_rows.append(cand_dict)
 
             group_number += 1
 
     df_summary = pd.DataFrame(final_rows)
     df_summary = df_summary.drop(columns=['No'])
+    df_summary['Notes'] = ''  # Tambah kolom kosong
     return df_summary
 
 # === PEMBUATAN USER INTERFACE ===
