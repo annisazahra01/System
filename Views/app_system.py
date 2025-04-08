@@ -283,7 +283,24 @@ if dsrp_file and pio_file and segment_file:
                     clean_name = jenis.strip().title().replace(' ', '')[:31]
                     subset_df = df_combine[df_combine['Jenis'] == jenis].copy()
                     df_summary = Summary_Recommendation_Report(subset_df.copy(), grouping_type=jenis)
+
                     df_summary.to_excel(writer, sheet_name=clean_name, index=False)
+                    workbook = writer.book
+                    worksheet = writer.sheets[clean_name]
+
+                    header_format = workbook.add_format({'bold': True, 'bg_color': '#FFFF99', 'border': 1})
+                    regular_format = workbook.add_format({'bg_color': '#DAECF4', 'border': 1})
+                    focus_format = workbook.add_format({'bg_color': '#A7D3F5', 'border': 1})
+
+                    for col_num, col_name in enumerate(df_summary.columns):
+                        max_len = max(df_summary[col_name].astype(str).map(len).max(), len(col_name)) + 2
+                        worksheet.set_column(col_num, col_num, max_len)
+                        worksheet.write(0, col_num, col_name, header_format)
+
+                    for row_num, rec in enumerate(df_summary['Recommendation'], start=1):
+                        row_format = focus_format if rec == 'Lowest' else regular_format
+                        for col in range(len(df_summary.columns)):
+                            worksheet.write(row_num, col, df_summary.iloc[row_num - 1, col], row_format)
 
             st.success("✅ Reports Generated!")
 
