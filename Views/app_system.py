@@ -282,11 +282,11 @@ if dsrp_file and pio_file and segment_file:
                     last_col_index = df_result.columns.get_loc('Rank')
                     for row_num, rec in enumerate(df_result['Remarks'], start=1):
                         row_format = focus_format if rec != '-' else regular_format
-                        for col in range(last_col_index + 1):
+                        for col in range(len(df_result.columns)):
                             value = df_result.iloc[row_num - 1, col]
                             col_name = df_result.columns[col]
                             is_number_col = col_name in ['Part Cost', 'OTR']
-
+                    
                             if pd.isna(value) or (isinstance(value, float) and not np.isfinite(value)):
                                 worksheet.write(row_num, col, '-', row_format)
                             else:
@@ -295,6 +295,7 @@ if dsrp_file and pio_file and segment_file:
                                     worksheet.write_number(row_num, col, value, fmt)
                                 else:
                                     worksheet.write(row_num, col, value, row_format)
+
 
             # === SUMMARY REPORT ===
             output_summary = BytesIO()
@@ -309,9 +310,9 @@ if dsrp_file and pio_file and segment_file:
                     worksheet = writer.sheets[clean_name]
 
                     header_format = workbook.add_format({'bold': True, 'bg_color': '#FFFF99', 'border': 1})
-                    lowest_format = workbook.add_format({'bg_color': '#A7D3F5', 'border': 1})
+                    lowest_format = workbook.add_format({'bg_color': '#DAECF4', 'border': 1})
                     candidate_format = workbook.add_format({'bg_color': '#0F243E', 'border': 1, 'font_color': 'white'})
-                    number_lowest_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#A7D3F5', 'border': 1})
+                    number_lowest_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#DAECF4', 'border': 1})
                     number_candidate_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#0F243E', 'border': 1, 'font_color': 'white'})
 
                     for col_num, col_name in enumerate(df_summary.columns):
