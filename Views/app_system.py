@@ -249,33 +249,49 @@ gen_summary = st.checkbox("Generate Summary Recommendation Report", value=True)
 gen_detailed = st.checkbox("Generate Detailed Recommendation Report", value=True)
 
 if dsrp_file and pio_file and segment_file:
-    if st.button("🚀 Generate Selected Reports"):
-        if not gen_summary and not gen_detailed:
-            st.warning("Please select at least one report type to generate.")
-        else:
-            with st.spinner("Processing your files. This may take a moment..."):
-                df_combine, model_to_margin = Dataframe(dsrp_file, pio_file, segment_file)
+    if st.button("🚀 Generate Reports"):
+        with st.spinner("Processing your files. This may take a moment..."):
+            df_combine, model_to_margin = Dataframe(dsrp_file, pio_file, segment_file)
 
-                if gen_detailed:
-                    output_detailed = BytesIO()
-                    with pd.ExcelWriter(output_detailed, engine='xlsxwriter') as writer_d:
-                        for jenis in df_combine['Jenis'].dropna().unique():
-                            clean_name = jenis.strip().title().replace(' ', '')[:31]
-                            subset_df = df_combine[df_combine['Jenis'] == jenis].copy()
-                            df_detailed = Recommendation_Program(subset_df.copy(), model_to_margin, grouping_type=jenis)
-                            df_detailed.to_excel(writer_d, sheet_name=clean_name, index=False)
-                    st.download_button("📥 Download Detailed Recommendation Report", data=output_detailed.getvalue(), file_name="Detailed_Recommendation_Report.xlsx")
+            # === DETAILED REPORT ===
+            output_detailed = BytesIO()
+            with pd.ExcelWriter(output_detailed, engine='xlsxwriter') as writer:
+                for jenis in df_combine['Jenis'].dropna().unique():
+                    clean_name = jenis.strip().title().replace(' ', '')[:31]
+                    subset_df = df_combine[df_combine['Jenis'] == jenis].copy()
+                    df_result = Recommendation_Program(subset_df, model_to_margin, grouping_type=jenis)
 
-                if gen_summary:
-                    output_summary = BytesIO()
-                    with pd.ExcelWriter(output_summary, engine='xlsxwriter') as writer_s:
-                        for jenis in df_combine['Jenis'].dropna().unique():
-                            clean_name = jenis.strip().title().replace(' ', '')[:31]
-                            subset_df = df_combine[df_combine['Jenis'] == jenis].copy()
-                            df_summary = Summary_Recommendation_Report(subset_df.copy(), grouping_type=jenis)
-                            df_summary.to_excel(writer_s, sheet_name=clean_name, index=False)
-                    st.download_button("📥 Download Summary Recommendation Report", data=output_summary.getvalue(), file_name="Summary_Recommendation_Report.xlsx")
+                    df_result.to_excel(writer, sheet_name=clean_name, index=False)
+                    workbook = writer.book
+                    worksheet = writer.sheets[clean_name]
 
-            st.success("✅ Report(s) Generated!")
+                    header_format = workbook.add_format({'bold': True, 'bg_color': '#FFFF99', 'border': 1})
+                    regular_format = workbook.add_format({'bg_color': '#DAECF4', 'border': 1})
+                    focus_format = workbook.add_format({'bg_color': '#A7D3F5', 'border': 1})
+
+                    for col_num, col_name in enumerate(df_result.columns):
+                        max_len = max(df_result[col_name].astype(str).map(len).max(), len(col_name)) + 2
+                        worksheet.set_column(col_num, col_num, max_len)
+                        worksheet.write(0, col_num, col_name, header_format)
+
+                    last_col_index = df_result.columns.get_loc('Rank')
+                    for row_num, rec in enumerate(df_result['Recommendation'], start=1):
+                        row_format = focus_format if rec != '-' else regular_format
+                        for col in range(last_col_index + 1):
+                            worksheet.write(row_num, col, df_result.iloc[row_num - 1, col], row_format)
+
+            # === SUMMARY REPORT ===
+            output_summary = BytesIO()
+            with pd.ExcelWriter(output_summary, engine='xlsxwriter') as writer:
+                for jenis in df_combine['Jenis'].dropna().unique():
+                    clean_name = jenis.strip().title().replace(' ', '')[:31]
+                    subset_df = df_combine[df_combine['Jenis'] == jenis].copy()
+                    df_summary = Summary_Recommendation_Report(subset_df.copy(), grouping_type=jenis)
+                    df_summary.to_excel(writer, sheet_name=clean_name, index=False)
+
+            st.success("✅ Reports Generated!")
+
+            st.download_button("📥 Download Detailed Recommendation Report", data=output_detailed.getvalue(), file_name="Detailed_Recommendation_Report.xlsx")
+            st.download_button("📥 Download Summary Recommendation Report", data=output_summary.getvalue(), file_name="Summary_Recommendation_Report.xlsx")
 else:
     st.info("Please upload all required files to enable report generation.")
