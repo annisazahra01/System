@@ -7,7 +7,7 @@ from io import BytesIO
 
 # === UTILITAS & PERSIAPAN ===
 
-def extract_model_keyword(text):
+def extract_model_keyword(text): ## Identifikasi Model
     words = str(text).split()
     if len(words) >= 2:
         if words[0].upper() == 'COROLLA' and words[1].upper() == 'CROSS':
@@ -24,7 +24,7 @@ def extract_model_keyword(text):
             return 'HILUX PICK'
     return words[0].upper() if words else ''
 
-def group_parts(df, grouping_type="Electrical"):
+def group_parts(df, grouping_type="Electrical"): # Function untuk grouping part name
     grouped = defaultdict(list)
     part_names = df['Part Name'].unique().tolist()
     grouping_type = grouping_type.lower()
@@ -88,7 +88,7 @@ def group_parts(df, grouping_type="Electrical"):
         grouped[base].append(original)
     return dict(grouped)
 
-def Dataframe(dsrp_file, pio_file, segment_file):
+def Dataframe(dsrp_file, pio_file, segment_file): ## Function data cleaning & integration
     df_dsrp = pd.concat(pd.read_excel(dsrp_file, sheet_name=None).values(), ignore_index=True)
     df_pio = pd.concat(pd.read_excel(pio_file, sheet_name=None).values(), ignore_index=True)
     df_segment = pd.concat(pd.read_excel(segment_file, sheet_name=None).values(), ignore_index=True)
@@ -130,7 +130,7 @@ def Dataframe(dsrp_file, pio_file, segment_file):
 
 # === REKOMENDASI ===
 
-def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
+def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"): #Function untuk detailed recommendation report
     grouped = group_parts(df, grouping_type)
     partname_to_group = {str(part).strip().casefold(): group for group, parts in grouped.items() for part in parts}
     df['Group'] = df['Part Name'].apply(lambda x: partname_to_group.get(str(x).strip().casefold()))
@@ -198,7 +198,7 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
     df_recom = df_recom.drop(columns=['No'])
     return df_recom
 
-def Summary_Recommendation_Report(df, grouping_type="Electrical"):
+def Summary_Recommendation_Report(df, grouping_type="Electrical"): #Function untuk summary recommendation report
     grouped = group_parts(df, grouping_type)
     partname_to_group = {str(part).strip().casefold(): group for group, parts in grouped.items() for part in parts}
     df['Group'] = df['Part Name'].apply(lambda x: partname_to_group.get(str(x).strip().casefold()))
@@ -234,7 +234,7 @@ def Summary_Recommendation_Report(df, grouping_type="Electrical"):
     df_summary = df_summary.drop(columns=['No'])
     return df_summary
 
-# === STREAMLIT APP ===
+# === PEMBUATAN USER INTERFACE ===
 
 st.set_page_config(page_title="Cost Analysis and Recommendation Program", layout="centered")
 st.title("Cost Analysis and Recommendation Program")
