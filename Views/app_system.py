@@ -180,7 +180,7 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
                 for _, cand in candidates.iterrows():
                     cand_dict = cand.to_dict()
                     cand_dict['No'] = group_number
-                    cand_dict['Remark'] = '-'
+                    cand_dict['Remarks'] = '-'
                     cand_dict['Gap'] = '-'
                     final_rows.append(cand_dict)
 
@@ -189,7 +189,7 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
 
     df_recom = pd.DataFrame(final_rows)
 
-    fokus_df = df_recom[df_recom['Remark'] != '-'].copy()
+    fokus_df = df_recom[df_recom['Remarks'] != '-'].copy()
     fokus_df['Segment'] = pd.Categorical(fokus_df['Segment'], categories=segment_order, ordered=True)
     fokus_df['Margin'] = fokus_df['Model Type'].apply(lambda x: model_to_margin.get(extract_model_keyword(x), np.nan))
     fokus_df['Gap'] = pd.to_numeric(fokus_df['Gap'], errors='coerce')
@@ -223,7 +223,7 @@ def Summary_Recommendation_Report(df, grouping_type="Electrical"):
             for _, row in focus_models.iterrows():
                 row_dict = row.to_dict()
                 row_dict['No'] = group_number
-                row_dict['Remark'] = 'Lowest'
+                row_dict['Remarks'] = 'Lowest'
                 final_rows.append(row_dict)
 
             candidates = df_group_sorted[df_group_sorted['Part Cost'] > lowest_cost].copy()
@@ -231,7 +231,7 @@ def Summary_Recommendation_Report(df, grouping_type="Electrical"):
             for _, cand in candidates.iterrows():
                 cand_dict = cand.to_dict()
                 cand_dict['No'] = group_number
-                cand_dict['Remark'] = 'Candidate'
+                cand_dict['Remarks'] = 'Candidate'
                 final_rows.append(cand_dict)
 
             group_number += 1
@@ -280,7 +280,7 @@ if dsrp_file and pio_file and segment_file:
                         worksheet.write(0, col_num, col_name, header_format)
 
                     last_col_index = df_result.columns.get_loc('Rank')
-                    for row_num, rec in enumerate(df_result['Recommendation'], start=1):
+                    for row_num, rec in enumerate(df_result['Remarks'], start=1):
                         row_format = focus_format if rec != '-' else regular_format
                         for col in range(last_col_index + 1):
                             value = df_result.iloc[row_num - 1, col]
@@ -319,7 +319,7 @@ if dsrp_file and pio_file and segment_file:
                         worksheet.set_column(col_num, col_num, max_len)
                         worksheet.write(0, col_num, col_name, header_format)
 
-                    for row_num, rec in enumerate(df_summary['Recommendation'], start=1):
+                    for row_num, rec in enumerate(df_summary['Remarks'], start=1):
                         row_format = lowest_format if rec == 'Lowest' else candidate_format
                         for col in range(len(df_summary.columns)):
                             value = df_summary.iloc[row_num - 1, col]
