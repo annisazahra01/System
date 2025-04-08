@@ -202,7 +202,7 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"): #Fu
     df_recom = df_recom.drop(columns=['No'])
     return df_recom
 
-def Summary_Recommendation_Report(df, grouping_type="Electrical"): #Function untuk summary recommendation report
+def Summary_Recommendation_Report(df, grouping_type="Electrical"):
     grouped = group_parts(df, grouping_type)
     partname_to_group = {str(part).strip().casefold(): group for group, parts in grouped.items() for part in parts}
     df['Group'] = df['Part Name'].apply(lambda x: partname_to_group.get(str(x).strip().casefold()))
@@ -215,24 +215,28 @@ def Summary_Recommendation_Report(df, grouping_type="Electrical"): #Function unt
 
     for group_name, df_group in df.groupby('Group'):
         df_group_sorted = df_group.sort_values(by='Part Cost')
-        focus_row = df_group_sorted.iloc[0]
-        model_focus = focus_row['Model Type']
+        lowest_cost = df_group_sorted['Part Cost'].min()
 
-        focus_dict = focus_row.to_dict()
-        focus_dict['No'] = group_number
-        focus_dict['Recommendation'] = 'Lowest'
-        final_rows.append(focus_dict)
+        # Cek apakah ada model lain dengan Part Cost > lowest_cost
+        if any(df_group_sorted['Part Cost'] > lowest_cost):
+            # Ambil semua yang cost-nya == lowest_cost
+            focus_models = df_group_sorted[df_group_sorted['Part Cost'] == lowest_cost].copy()
+            for _, row in focus_models.iterrows():
+                row_dict = row.to_dict()
+                row_dict['No'] = group_number
+                row_dict['Recommendation'] = 'Lowest'
+                final_rows.append(row_dict)
 
-        candidates = df_group[df_group['Model Type'] != model_focus].copy()
-        candidates = candidates.sort_values(by=['Segment', 'OTR'])
+            # Kandidat yang lebih mahal
+            candidates = df_group_sorted[df_group_sorted['Part Cost'] > lowest_cost].copy()
+            candidates = candidates.sort_values(by=['Part Cost', 'Segment'])
+            for _, cand in candidates.iterrows():
+                cand_dict = cand.to_dict()
+                cand_dict['No'] = group_number
+                cand_dict['Recommendation'] = 'Candidate'
+                final_rows.append(cand_dict)
 
-        for _, cand in candidates.iterrows():
-            cand_dict = cand.to_dict()
-            cand_dict['No'] = group_number
-            cand_dict['Recommendation'] = '-'
-            final_rows.append(cand_dict)
-
-        group_number += 1
+            group_number += 1
 
     df_summary = pd.DataFrame(final_rows)
     df_summary = df_summary.drop(columns=['No'])
@@ -306,10 +310,10 @@ if dsrp_file and pio_file and segment_file:
                     worksheet = writer.sheets[clean_name]
 
                     header_format = workbook.add_format({'bold': True, 'bg_color': '#FFFF99', 'border': 1})
-                    regular_format = workbook.add_format({'bg_color': '#DAECF4', 'border': 1})
-                    focus_format = workbook.add_format({'bg_color': '#A7D3F5', 'border': 1})
-                    number_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#DAECF4', 'border': 1})
-                    number_focus_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#A7D3F5', 'border': 1})
+                    lowest_format = workbook.add_format({'bg_color': '#A7D3F5', 'border': 1})
+                    candidate_format = workbook.add_format({'bg_color': '#1E88E5', 'border': 1, 'font_color': 'white'})
+                    number_lowest_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#A7D3F5', 'border': 1})
+                    number_candidate_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#1E88E5', 'border': 1, 'font_color': 'white'})
 
                     for col_num, col_name in enumerate(df_summary.columns):
                         max_len = max(df_summary[col_name].astype(str).map(len).max(), len(col_name)) + 2
@@ -317,7 +321,7 @@ if dsrp_file and pio_file and segment_file:
                         worksheet.write(0, col_num, col_name, header_format)
 
                     for row_num, rec in enumerate(df_summary['Recommendation'], start=1):
-                        row_format = focus_format if rec == 'Lowest' else regular_format
+                        row_format = lowest_format if rec == 'Lowest' else candidate_format
                         for col in range(len(df_summary.columns)):
                             value = df_summary.iloc[row_num - 1, col]
                             col_name = df_summary.columns[col]
@@ -327,7 +331,7 @@ if dsrp_file and pio_file and segment_file:
                                 worksheet.write(row_num, col, '-', row_format)
                             else:
                                 if is_number_col:
-                                    fmt = number_focus_format if row_format == focus_format else number_format
+                                    fmt = number_lowest_format if rec == 'Lowest' else number_candidate_format
                                     worksheet.write_number(row_num, col, value, fmt)
                                 else:
                                     worksheet.write(row_num, col, value, row_format)
