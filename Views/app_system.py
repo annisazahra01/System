@@ -34,6 +34,7 @@ def group_parts(df, grouping_type="Electrical"): # Function untuk grouping part 
         cleaned = name.replace('-', ' ')
         cleaned = re.sub(r'\([^)]*\)', '', cleaned)
         cleaned = cleaned.lower().strip()
+        cleaned = re.sub(r'[^\w\s]', ' ', cleaned)
         tokens = cleaned.split()
 
         if grouping_type == "textile":
@@ -80,12 +81,13 @@ def group_parts(df, grouping_type="Electrical"): # Function untuk grouping part 
             else:
                 base = ' '.join(tokens[:3])
                 
-        elif 'dvr' in tokens:
-            base = 'wire harness dvr' if 'wire' in tokens or 'harness' in tokens else 'dvr'
-        else:
-            clean = re.sub(r'\([^)]*\)', '', name.replace('-', ' '))
-            clean = re.sub(r'[^\w\s]', '', clean).lower().strip()
-            base = ' '.join(clean.split()[:2])
+        else:  # Default termasuk electrical, safety
+            if 'dvr' in tokens:
+                base = 'wire harness dvr' if 'wire' in tokens or 'harness' in tokens else 'dvr'
+            else:
+                clean = re.sub(r'\([^)]*\)', '', name.replace('-', ' '))
+                clean = re.sub(r'[^\w\s]', '', clean).lower().strip()
+                base = ' '.join(clean.split()[:2])                
 
         grouped[base].append(original)
     return dict(grouped)
