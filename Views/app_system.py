@@ -345,10 +345,10 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                             col_name = df_result.columns[col]
                             is_number_col = col_name in ['Part Cost', 'OTR','Recommendation (Average Cost Candidate)','Gap (Part Cost-Recommendation)','Potential Gain based on Q1 25 (Volume Wholesales * Gap)','Tooling Cost/Unit']
                             
-                            if pd.isna(value) or (isinstance(value, float) and not np.isfinite(value)):
+                            if pd.isna(value) or value == '-' or (isinstance(value, float) and not np.isfinite(value)):
                                 worksheet.write(row_num, col, '-', row_format)
                             else:
-                                if is_number_col:
+                                if is_number_col and not isinstance(value, str):
                                     fmt = number_focus_format if row_format == focus_format else number_format
                                     worksheet.write_number(row_num, col, value, fmt)
                                 else:
@@ -385,11 +385,11 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                             col_name = df_summary.columns[col]
                             is_number_col = col_name in ['Part Cost', 'OTR','Recommendation (Average Cost Candidate)','Gap (Part Cost-Recommendation)','Potential Gain based on Q1 25 (Volume Wholesales * Gap)','Tooling Cost/Unit']
 
-                            if pd.isna(value) or (isinstance(value, float) and not np.isfinite(value)):
+                            if pd.isna(value) or value == '-' or (isinstance(value, float) and not np.isfinite(value)):
                                 worksheet.write(row_num, col, '-', row_format)
                             else:
-                                if is_number_col:
-                                    fmt = number_lowest_format if rec == 'Lowest' else number_candidate_format
+                                if is_number_col and not isinstance(value, str):
+                                    fmt = number_focus_format if row_format == focus_format else number_format
                                     worksheet.write_number(row_num, col, value, fmt)
                                 else:
                                     worksheet.write(row_num, col, value, row_format)
