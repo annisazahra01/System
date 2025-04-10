@@ -378,7 +378,7 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                         worksheet.set_column(col_num, col_num, max_len)
                         worksheet.write(0, col_num, col_name, header_format)
 
-                    for row_num, rec in enumerate(df_summary['Recommendation'], start=1):
+                    for row_num, rec in enumerate(df_summary['Remarks'], start=1):
                         row_format = focus_format if rec == 'Lowest' else regular_format
                         for col in range(len(df_summary.columns)):
                             value = df_summary.iloc[row_num - 1, col]
