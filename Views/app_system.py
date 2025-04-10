@@ -328,9 +328,9 @@ if dsrp_file and pio_file and segment_file and tooling_file:
 
                     header_format = workbook.add_format({'bold': True, 'bg_color': '#FFFF99', 'border': 1})
                     regular_format = workbook.add_format({'bg_color': '#DAECF4', 'border': 1})
-                    focus_format = workbook.add_format({'bg_color': '#0F243E', 'border': 1, 'font_color': 'white'})
+                    focus_format = workbook.add_format({'bg_color': '#A7D3F5', 'border': 1})
                     number_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#DAECF4', 'border': 1})
-                    number_focus_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#0F243E', 'border': 1, 'font_color': 'white'})
+                    number_focus_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#A7D3F5', 'border': 1})
 
                     for col_num, col_name in enumerate(df_result.columns):
                         max_len = max(df_result[col_name].astype(str).map(len).max(), len(col_name)) + 2
@@ -340,7 +340,7 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                     last_col_index = df_result.columns.get_loc('Rank')
                     for row_num, rec in enumerate(df_result['Recommendation (Average Cost Candidate)'], start=1):
                         row_format = focus_format if rec != '-' else regular_format
-                        for col in range(len(df_result.columns)):
+                        for col in range(last_col_index + 1):
                             value = df_result.iloc[row_num - 1, col]
                             col_name = df_result.columns[col]
                             is_number_col = col_name in ['Part Cost', 'OTR']
@@ -368,18 +368,18 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                     worksheet = writer.sheets[clean_name]
 
                     header_format = workbook.add_format({'bold': True, 'bg_color': '#FFFF99', 'border': 1})
-                    lowest_format = workbook.add_format({'bg_color': '#DAECF4', 'border': 1})
-                    candidate_format = workbook.add_format({'bg_color': '#0F243E', 'border': 1, 'font_color': 'white'})
-                    number_lowest_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#DAECF4', 'border': 1})
-                    number_candidate_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#0F243E', 'border': 1, 'font_color': 'white'})
+                    regular_format = workbook.add_format({'bg_color': '#DAECF4', 'border': 1})
+                    focus_format = workbook.add_format({'bg_color': '#A7D3F5', 'border': 1})
+                    number_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#DAECF4', 'border': 1})
+                    number_focus_format = workbook.add_format({'num_format': '#,##0', 'bg_color': '#A7D3F5', 'border': 1})
 
                     for col_num, col_name in enumerate(df_summary.columns):
                         max_len = max(df_summary[col_name].astype(str).map(len).max(), len(col_name)) + 2
                         worksheet.set_column(col_num, col_num, max_len)
                         worksheet.write(0, col_num, col_name, header_format)
 
-                    for row_num, rec in enumerate(df_summary['Remarks'], start=1):
-                        row_format = lowest_format if rec == 'Lowest' else candidate_format
+                    for row_num, rec in enumerate(df_summary['Recommendation'], start=1):
+                        row_format = focus_format if rec == 'Lowest' else regular_format
                         for col in range(len(df_summary.columns)):
                             value = df_summary.iloc[row_num - 1, col]
                             col_name = df_summary.columns[col]
