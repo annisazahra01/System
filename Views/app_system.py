@@ -348,9 +348,14 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                             if pd.isna(value) or value == '-' or (isinstance(value, float) and not np.isfinite(value)):
                                 worksheet.write(row_num, col, '-', row_format)
                             else:
-                                if is_number_col and not isinstance(value, str):
-                                    fmt = number_focus_format if row_format == focus_format else number_format
-                                    worksheet.write_number(row_num, col, value, fmt)
+                                if is_number_col:
+                                    try:
+                                        numeric_value = float(value)
+                                        fmt = number_focus_format if row_format == focus_format else number_format
+                                        worksheet.write_number(row_num, col, numeric_value, fmt)
+                                    except (ValueError, TypeError):
+                                        # Fallback kalau konversi ke float gagal
+                                        worksheet.write(row_num, col, value, row_format)
                                 else:
                                     worksheet.write(row_num, col, value, row_format)
 
@@ -388,9 +393,14 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                             if pd.isna(value) or value == '-' or (isinstance(value, float) and not np.isfinite(value)):
                                 worksheet.write(row_num, col, '-', row_format)
                             else:
-                                if is_number_col and not isinstance(value, str):
-                                    fmt = number_focus_format if row_format == focus_format else number_format
-                                    worksheet.write_number(row_num, col, value, fmt)
+                                if is_number_col:
+                                    try:
+                                        numeric_value = float(value)
+                                        fmt = number_focus_format if row_format == focus_format else number_format
+                                        worksheet.write_number(row_num, col, numeric_value, fmt)
+                                    except (ValueError, TypeError):
+                                        # Fallback kalau konversi ke float gagal
+                                        worksheet.write(row_num, col, value, row_format)
                                 else:
                                     worksheet.write(row_num, col, value, row_format)
 
