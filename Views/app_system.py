@@ -234,15 +234,17 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
 
     # Tambahkan kolom tambahan sesuai grouping_type
     if grouping_type == 'Electrical':
-        df_recom['Volume'] = ''
         df_recom['Wire'] = ''
         df_recom['Spec'] = ''
-    if grouping_type == 'Multimedia':
-        df_recom['Volume'] = ''
+    elif grouping_type == 'Multimedia':
         df_recom['Wire'] = ''
         df_recom['Spec'] = ''
     elif grouping_type == 'Textile':
-        df_recom['Dimensi'] = ''
+        df_recom['Dimention'] = ''
+        df_recom['Material'] = ''
+        df_recom['Spec'] = ''
+    elif grouping_type == 'Plastic':
+        df_recom['Dimention'] = ''
         df_recom['Material'] = ''
         df_recom['Painting Condition'] = ''
         df_recom['Spec'] = ''
@@ -297,21 +299,23 @@ def Summary_Recommendation_Report(df, grouping_type="Electrical"):
 
     # Tambahkan kolom tambahan sesuai grouping_type
     if grouping_type == 'Electrical':
-        df_recom['Volume'] = ''
-        df_recom['Wire'] = ''
-        df_recom['Spec'] = ''
-    if grouping_type == 'Multimedia':
-        df_recom['Volume'] = ''
-        df_recom['Wire'] = ''
-        df_recom['Spec'] = ''
+        df_summary['Wire'] = ''
+        df_summary['Spec'] = ''
+    elif grouping_type == 'Multimedia':
+        df_summary['Wire'] = ''
+        df_summary['Spec'] = ''
     elif grouping_type == 'Textile':
-        df_recom['Dimensi'] = ''
-        df_recom['Material'] = ''
-        df_recom['Painting Condition'] = ''
-        df_recom['Spec'] = ''
+        df_summary['Dimention'] = ''
+        df_summary['Material'] = ''
+        df_summary['Spec'] = ''
+    elif grouping_type == 'Plastic':
+        df_summary['Dimention'] = ''
+        df_summary['Material'] = ''
+        df_summary['Painting Condition'] = ''
+        df_summary['Spec'] = ''
     elif grouping_type == 'Safety':
-        df_recom['Part Type'] = ''
-        df_recom['Spec'] = ''
+        df_summary['Part Type'] = ''
+        df_summary['Spec'] = ''
     return df_summary
 
 # === PEMBUATAN USER INTERFACE ===
