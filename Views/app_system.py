@@ -396,8 +396,8 @@ if dsrp_file and pio_file and segment_file and tooling_file:
 
             st.success("✅ Reports Generated!")
             
-            st.download_button("📥 Download Summary Recommendation Report", data=output_summary.getvalue(), file_name="Summary_Recommendation_Report.xlsx")
-            st.download_button("📥 Download Detailed Recommendation Report", data=output_detailed.getvalue(), file_name="Detailed_Recommendation_Report.xlsx")
+            st.download_button("📥 Download Summary Recommendation Report", data=output_summary.getvalue(), file_name="Summary Recommendation Report.xlsx")
+            st.download_button("📥 Download Detailed Recommendation Report", data=output_detailed.getvalue(), file_name="Detailed Recommendation Report.xlsx")
 
 else:
     st.info("Please upload all required files to enable report generation.")
