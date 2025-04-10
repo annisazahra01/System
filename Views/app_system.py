@@ -343,8 +343,8 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                         for col in range(len(df_result.columns)):
                             value = df_result.iloc[row_num - 1, col]
                             col_name = df_result.columns[col]
-                            is_number_col = col_name in ['Part Cost', 'OTR']
-                    
+                            is_number_col = col_name in ['Part Cost', 'OTR','Recommendation (Average Cost Candidate)','Gap (Part Cost-Recommendation)','Potential Gain based on Q1 25 (Volume Wholesales * Gap)','Tooling Cost/Unit']
+                            
                             if pd.isna(value) or (isinstance(value, float) and not np.isfinite(value)):
                                 worksheet.write(row_num, col, '-', row_format)
                             else:
@@ -383,7 +383,7 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                         for col in range(len(df_summary.columns)):
                             value = df_summary.iloc[row_num - 1, col]
                             col_name = df_summary.columns[col]
-                            is_number_col = col_name in ['Part Cost', 'OTR']
+                            is_number_col = col_name in ['Part Cost', 'OTR','Recommendation (Average Cost Candidate)','Gap (Part Cost-Recommendation)','Potential Gain based on Q1 25 (Volume Wholesales * Gap)','Tooling Cost/Unit']
 
                             if pd.isna(value) or (isinstance(value, float) and not np.isfinite(value)):
                                 worksheet.write(row_num, col, '-', row_format)
