@@ -161,6 +161,7 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
     segment_order = ['A', 'B', 'C', 'D', 'Comm']
     df['Segment'] = pd.Categorical(df['Segment'], categories=segment_order, ordered=True)
     df = df.sort_values(by=['Group', 'Segment', 'Total Margin', 'OTR'])
+    print(df.columns)
 
     final_rows = []
     group_number = 1
