@@ -343,19 +343,14 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                         for col in range(len(df_result.columns)):
                             value = df_result.iloc[row_num - 1, col]
                             col_name = df_result.columns[col]
-                            is_number_col = col_name in ['Part Cost', 'OTR','Recommendation (Average Cost Candidate)','Gap (Part Cost-Recommendation)','Potential Gain based on Q1 25 (Volume Wholesales * Gap)','Tooling Cost/Unit']
+                            is_number_col = col_name in ['Part Cost', 'OTR','Recommendation (Average Cost Candidate)','Gap (Part Cost-Recommendation)']
                             
-                            if pd.isna(value) or value == '-' or (isinstance(value, float) and not np.isfinite(value)):
+                            if pd.isna(value) or (isinstance(value, float) and not np.isfinite(value)):
                                 worksheet.write(row_num, col, '-', row_format)
                             else:
                                 if is_number_col:
-                                    try:
-                                        numeric_value = float(value)
-                                        fmt = number_focus_format if row_format == focus_format else number_format
-                                        worksheet.write_number(row_num, col, numeric_value, fmt)
-                                    except (ValueError, TypeError):
-                                        # Fallback kalau konversi ke float gagal
-                                        worksheet.write(row_num, col, value, row_format)
+                                    fmt = number_focus_format if row_format == focus_format else number_format
+                                    worksheet.write_number(row_num, col, value, fmt)
                                 else:
                                     worksheet.write(row_num, col, value, row_format)
 
@@ -388,19 +383,14 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                         for col in range(len(df_summary.columns)):
                             value = df_summary.iloc[row_num - 1, col]
                             col_name = df_summary.columns[col]
-                            is_number_col = col_name in ['Part Cost', 'OTR','Recommendation (Average Cost Candidate)','Gap (Part Cost-Recommendation)','Potential Gain based on Q1 25 (Volume Wholesales * Gap)','Tooling Cost/Unit']
+                            is_number_col = col_name in ['Part Cost', 'OTR','Recommendation (Average Cost Candidate)','Gap (Part Cost-Recommendation)']
 
-                            if pd.isna(value) or value == '-' or (isinstance(value, float) and not np.isfinite(value)):
+                            if pd.isna(value) or (isinstance(value, float) and not np.isfinite(value)):
                                 worksheet.write(row_num, col, '-', row_format)
                             else:
                                 if is_number_col:
-                                    try:
-                                        numeric_value = float(value)
-                                        fmt = number_focus_format if row_format == focus_format else number_format
-                                        worksheet.write_number(row_num, col, numeric_value, fmt)
-                                    except (ValueError, TypeError):
-                                        # Fallback kalau konversi ke float gagal
-                                        worksheet.write(row_num, col, value, row_format)
+                                    fmt = number_focus_format if row_format == focus_format else number_format
+                                    worksheet.write_number(row_num, col, value, fmt)
                                 else:
                                     worksheet.write(row_num, col, value, row_format)
 
