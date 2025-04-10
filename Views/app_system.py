@@ -231,6 +231,20 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
     other_cols = [col for col in df_recom.columns if col not in cols_to_move]
     # Gabungkan: kolom lainnya dulu, baru dua kolom tersebut di akhir
     df_recom = df_recom[other_cols + cols_to_move]
+
+    # Tambahkan kolom tambahan sesuai grouping_type
+    if grouping_type == 'Electrical':
+        df_recom['Volume'] = ''
+        df_recom['Wire'] = ''
+        df_recom['Spec'] = ''
+    elif grouping_type == 'Textile':
+        df_recom['Dimensi'] = ''
+        df_recom['Material'] = ''
+        df_recom['Painting Condition'] = ''
+        df_recom['Spec'] = ''
+    elif grouping_type == 'Safety':
+        df_recom['Type'] = ''
+        df_recom['Spec'] = ''
     return df_recom
 
 def Summary_Recommendation_Report(df, grouping_type="Electrical"):
@@ -276,6 +290,20 @@ def Summary_Recommendation_Report(df, grouping_type="Electrical"):
     other_cols = [col for col in df_summary.columns if col not in cols_to_move]
     # Gabungkan: kolom lainnya dulu, baru dua kolom tersebut di akhir
     df_summary = df_summary[other_cols + cols_to_move]
+
+    # Tambahkan kolom tambahan sesuai grouping_type
+    if grouping_type == 'Electrical':
+        df_summary['Volume'] = ''
+        df_summary['Wire'] = ''
+        df_summary['Spec'] = ''
+    elif grouping_type == 'Textile':
+        df_summary['Dimensi'] = ''
+        df_summary['Material'] = ''
+        df_summary['Painting Condition'] = ''
+        df_summary['Spec'] = ''
+    elif grouping_type == 'Safety':
+        df_summary['Type'] = ''
+        df_summary['Spec'] = ''
     return df_summary
 
 # === PEMBUATAN USER INTERFACE ===
