@@ -92,10 +92,11 @@ def group_parts(df, grouping_type="Electrical"): # Function untuk grouping part 
         grouped[base].append(original)
     return dict(grouped)
 
-def Dataframe(dsrp_file, pio_file, segment_file): ## Function data cleaning & integration
+def Dataframe(dsrp_file, pio_file, segment_file, tooling_file): ## Function data cleaning & integration
     df_dsrp = pd.concat(pd.read_excel(dsrp_file, sheet_name=None).values(), ignore_index=True)
     df_pio = pd.concat(pd.read_excel(pio_file, sheet_name=None).values(), ignore_index=True)
     df_segment = pd.concat(pd.read_excel(segment_file, sheet_name=None).values(), ignore_index=True)
+    df_tooling= pd.read_excel(tooling_file)
 
     exclude_keywords = ['two tone', '(premium color)', 'bitone']
     df_dsrp_filtered = df_dsrp[~df_dsrp['Model Name DSRP'].apply(lambda x: any(k in str(x).lower() for k in exclude_keywords))].copy()
@@ -113,23 +114,38 @@ def Dataframe(dsrp_file, pio_file, segment_file): ## Function data cleaning & in
     df_dsrp_filtered['Model Name Clean'] = df_dsrp_filtered['Model Name DSRP'].str.lower().str.strip().str.replace(' +', ' ', regex=True)
 
     df_pio['Model Type Clean'] = df_pio['Model Type'].str.lower().str.strip().str.replace(' +', ' ', regex=True)
-    df_combine = pd.merge(
+    df_combine_1 = pd.merge(
         df_pio,
         df_dsrp_filtered[['Model Name DSRP', 'Model Name Clean', 'DKI']],
         left_on='Model Type Clean',
         right_on='Model Name Clean',
         how='left'
     ).drop(columns=['Model Type Clean', 'Model Name DSRP', 'Model Name Clean'])
-    df_combine = df_combine.rename(columns={'DKI': 'OTR'})
+    df_combine_1 = df_combine_1.rename(columns={'DKI': 'OTR'})
 
-    model_keywords = df_combine['Model Type'].str.replace('Toyota', '', case=False, regex=False).str.strip().apply(extract_model_keyword)
+    model_keywords = df_combine_1['Model Type'].str.replace('Toyota', '', case=False, regex=False).str.strip().apply(extract_model_keyword)
     model_to_segment = dict(zip(df_segment['Model'], df_segment['Segment']))
     model_to_type = dict(zip(df_segment['Model'], df_segment['Type']))
-    model_to_margin = dict(zip(df_segment['Model'], df_segment['Margin']))
+    model_to_margin = dict(zip(df_segment['Model'], df_segment['Total Margin']))
 
-    df_combine['Segment'] = model_keywords.map(model_to_segment)
-    df_combine['Type'] = model_keywords.map(model_to_type)
-    df_combine['Margin'] = model_keywords.map(model_to_margin)
+    df_combine_1['Segment'] = model_keywords.map(model_to_segment)
+    df_combine_1['Type'] = model_keywords.map(model_to_type)
+    df_combine_1['Total Margin'] = model_keywords.map(model_to_margin)
+
+    df_tooling = df_tooling.iloc[2:].reset_index(drop=True)
+    df_tooling = df_tooling.drop(df_tooling.columns[0], axis=1)
+    df_tooling.columns = df_tooling.iloc[0]
+    df_tooling = df_tooling[1:].reset_index(drop=True)
+
+    df_combine = pd.merge(
+        df_combine_1,
+        df_tooling[['Part Number', 'Tooling Cost/Unit', 'Volume Achievement (%)']],
+        on='Part Number',
+        how='left'  # gunakan 'left' supaya data dari df_combine tetap lengkap)
+    )
+    df_combine['Volume Achievement (%)'] = df_combine['Volume Achievement (%)'].apply(
+        lambda x: float(round(x/100)) if pd.notna(x) else float('NaN')
+    )
     return df_combine, model_to_margin
 
 # === REKOMENDASI ===
@@ -141,7 +157,7 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
 
     segment_order = ['A', 'B', 'C', 'D', 'Comm']
     df['Segment'] = pd.Categorical(df['Segment'], categories=segment_order, ordered=True)
-    df = df.sort_values(by=['Group', 'Segment', 'Margin', 'OTR'])
+    df = df.sort_values(by=['Group', 'Segment', 'Total Margin', 'OTR'])
 
     final_rows = []
     group_number = 1
@@ -157,6 +173,7 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
             focus_otr = focus_row['OTR']
             focus_segment = focus_row['Segment']
             focus_type = focus_row['Type']
+            focus_wholesales = focus_row['Volume Wholesales']
 
             candidates = df_group[
                 (df_group['Model Type'] != model) &
@@ -170,18 +187,21 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
             if not candidates.empty:
                 avg_cost = candidates['Part Cost'].mean()
                 gap = focus_cost - avg_cost
+                potential_gain = focus_wholesales * gap
 
                 focus_dict = focus_row.to_dict()
                 focus_dict['No'] = group_number
-                focus_dict['Remark'] = round(avg_cost)
-                focus_dict['Gap'] = round(gap)
+                focus_dict['Recommendation (Average Cost Candidate)'] = round(avg_cost)
+                focus_dict['Gap (Part Cost-Recommendation)'] = round(gap)
+                focus_dict['Potential Gain based on Q1 25 (Volume Wholesales * Gap)'] = round (potential_gain)
                 final_rows.append(focus_dict)
 
                 for _, cand in candidates.iterrows():
                     cand_dict = cand.to_dict()
                     cand_dict['No'] = group_number
-                    cand_dict['Remarks'] = '-'
-                    cand_dict['Gap'] = '-'
+                    cand_dict['Recommendation (Average Cost Candidate)'] = '-'
+                    cand_dict['Gap (Part Cost-Recommendation)'] = '-'
+                    cand_dict['Potential Gain based on Q1 25 (Volume Wholesales * Gap)'] = '-'
                     final_rows.append(cand_dict)
 
                 used_focus_keys.add(key)
@@ -189,11 +209,11 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
 
     df_recom = pd.DataFrame(final_rows)
 
-    fokus_df = df_recom[df_recom['Remarks'] != '-'].copy()
+    fokus_df = df_recom[df_recom['Recommendation (Average Cost Candidate)'] != '-'].copy()
     fokus_df['Segment'] = pd.Categorical(fokus_df['Segment'], categories=segment_order, ordered=True)
-    fokus_df['Margin'] = fokus_df['Model Type'].apply(lambda x: model_to_margin.get(extract_model_keyword(x), np.nan))
-    fokus_df['Gap'] = pd.to_numeric(fokus_df['Gap'], errors='coerce')
-    fokus_df = fokus_df.sort_values(by=['Segment', 'Margin', 'Gap'], ascending=[True, True, False])
+    fokus_df['Total Margin'] = fokus_df['Model Type'].apply(lambda x: model_to_margin.get(extract_model_keyword(x), np.nan))
+    fokus_df['Gap (Part Cost-Recommendation)'] = pd.to_numeric(fokus_df['Gap'], errors='coerce')
+    fokus_df = fokus_df.sort_values(by=['Segment', 'Total Margin', 'Potential Gain based on Q1 25 (Volume Wholesales * Gap)'], ascending=[True, True, False])
     fokus_df['Rank'] = range(1, len(fokus_df) + 1)
 
     df_recom = df_recom.merge(fokus_df[['Model Type', 'Group', 'Rank']], on=['Model Type', 'Group'], how='left')
@@ -201,6 +221,13 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
     df_recom = df_recom.sort_values(by=['Rank', 'No'])
     df_recom = df_recom.drop(columns=['No'])
     df_recom['Notes'] = ''  # Tambah kolom kosong
+
+    # Kolom yang ingin dipindahkan ke belakang
+    cols_to_move = ['Tooling Cost/Unit', 'Volume Achievement (%)']
+    # Sisanya (tanpa dua kolom tadi)
+    other_cols = [col for col in df_recom.columns if col not in cols_to_move]
+    # Gabungkan: kolom lainnya dulu, baru dua kolom tersebut di akhir
+    df_recom = df_recom[other_cols + cols_to_move]
     return df_recom
 
 def Summary_Recommendation_Report(df, grouping_type="Electrical"):
@@ -239,6 +266,13 @@ def Summary_Recommendation_Report(df, grouping_type="Electrical"):
     df_summary = pd.DataFrame(final_rows)
     df_summary = df_summary.drop(columns=['No'])
     df_summary['Notes'] = ''  # Tambah kolom kosong
+
+    # Kolom yang ingin dipindahkan ke belakang
+    cols_to_move = ['Tooling Cost/Unit', 'Volume Achievement (%)']
+    # Sisanya (tanpa dua kolom tadi)
+    other_cols = [col for col in df_summary.columns if col not in cols_to_move]
+    # Gabungkan: kolom lainnya dulu, baru dua kolom tersebut di akhir
+    df_summary = df_summary[other_cols + cols_to_move]
     return df_summary
 
 # === PEMBUATAN USER INTERFACE ===
