@@ -378,16 +378,19 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                         worksheet.set_column(col_num, col_num, max_len)
                         worksheet.write(0, col_num, col_name, header_format)
 
-                    # Cari batas kolom yang ingin diformat
-                    last_col_to_format = df_summary.columns.get_loc('Volume Achievement (%)')
-                    
+                    # Pakai pendekatan seperti contoh kamu
+                    if 'Volume Achievement %' in df_summary.columns:
+                        last_col_index = df_summary.columns.get_loc('Volume Achievement %')
+                    else:
+                        last_col_index = len(df_summary.columns) - 1  # fallback
+            
                     for row_num, rec in enumerate(df_summary['Remarks'], start=1):
                         row_format = focus_format if rec == 'Lowest' else regular_format
-                        for col in range(last_col_to_format + 1):  # hanya sampai 'Volume Achievement (%)'
+                        for col in range(last_col_index + 1):
                             value = df_summary.iloc[row_num - 1, col]
                             col_name = df_summary.columns[col]
                             is_number_col = col_name in ['Part Cost', 'OTR']
-                    
+            
                             if pd.isna(value) or (isinstance(value, float) and not np.isfinite(value)):
                                 worksheet.write(row_num, col, '-', row_format)
                             else:
