@@ -344,7 +344,7 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                             value = df_result.iloc[row_num - 1, col]
                             col_name = df_result.columns[col]
                             is_number_col = col_name in ['Part Cost', 'OTR']
-                            
+
                             if pd.isna(value) or (isinstance(value, float) and not np.isfinite(value)):
                                 worksheet.write(row_num, col, '-', row_format)
                             else:
