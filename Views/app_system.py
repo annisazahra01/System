@@ -286,12 +286,13 @@ st.markdown("### 📂 Upload Required Files")
 
 pio_file = st.file_uploader("📦 PIO Parts Master", type="xlsx", key="pio")
 dsrp_file = st.file_uploader("💰 DSRP CAL PA Latest", type="xlsx", key="dsrp")
+tooling_file = st.file_uploader("📋 Tooling Report Latest", type="xlsx", key="tooling")
 segment_file = st.file_uploader("📋 Segment, Type & Margin Mapping", type="xlsx", key="segment")
 
-if dsrp_file and pio_file and segment_file:
+if dsrp_file and pio_file and segment_file and tooling_file:
     if st.button("🚀 Generate Reports"):
         with st.spinner("Processing your files. This may take a moment..."):
-            df_combine, model_to_margin = Dataframe(dsrp_file, pio_file, segment_file)
+            df_combine, model_to_margin = Dataframe(dsrp_file, pio_file, segment_file, tooling_file)
 
             # === DETAILED REPORT ===
             output_detailed = BytesIO()
