@@ -378,20 +378,25 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                         worksheet.set_column(col_num, col_num, max_len)
                         worksheet.write(0, col_num, col_name, header_format)
 
-                    for row_num in range(1, len(df_summary) + 1):
-                        row_format = focus_format if df_summary.loc[row_num - 1, 'Remarks'] == 'Lowest' else regular_format
-                        for col_num, col_name in enumerate(df_summary.columns):
-                            value = df_summary.iloc[row_num - 1, col_num]
+                    # Cari batas kolom yang ingin diformat
+                    last_col_to_format = df_summary.columns.get_loc('Volume Achievement %')
+                    
+                    for row_num, rec in enumerate(df_summary['Remarks'], start=1):
+                        row_format = focus_format if rec == 'Lowest' else regular_format
+                        for col in range(last_col_to_format + 1):  # hanya sampai 'Volume Achievement %'
+                            value = df_summary.iloc[row_num - 1, col]
+                            col_name = df_summary.columns[col]
                             is_number_col = col_name in ['Part Cost', 'OTR']
                     
                             if pd.isna(value) or (isinstance(value, float) and not np.isfinite(value)):
-                                worksheet.write(row_num, col_num, '-', row_format)
+                                worksheet.write(row_num, col, '-', row_format)
                             else:
                                 if is_number_col:
                                     fmt = number_focus_format if row_format == focus_format else number_format
-                                    worksheet.write_number(row_num, col_num, value, fmt)
+                                    worksheet.write_number(row_num, col, value, fmt)
                                 else:
-                                    worksheet.write(row_num, col_num, value, row_format)
+                                    worksheet.write(row_num, col, value, row_format)
+
 
             st.success("✅ Reports Generated!")
             
