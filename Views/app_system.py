@@ -215,7 +215,7 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
     fokus_df = df_recom[df_recom['Recommendation (Average Cost Candidate)'] != '-'].copy()
     fokus_df['Segment'] = pd.Categorical(fokus_df['Segment'], categories=segment_order, ordered=True)
     fokus_df['Total Margin'] = fokus_df['Model Type'].apply(lambda x: model_to_margin.get(extract_model_keyword(x), np.nan))
-    fokus_df['Gap (Part Cost-Recommendation)'] = pd.to_numeric(fokus_df['Gap'], errors='coerce')
+    fokus_df['Gap (Part Cost-Recommendation)'] = pd.to_numeric(fokus_df['Gap (Part Cost-Recommendation)'], errors='coerce')
     fokus_df = fokus_df.sort_values(by=['Segment', 'Total Margin', 'Potential Gain based on Q1 25 (Volume Wholesales * Gap)'], ascending=[True, True, False])
     fokus_df['Rank'] = range(1, len(fokus_df) + 1)
 
