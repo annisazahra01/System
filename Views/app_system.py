@@ -318,7 +318,7 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                         worksheet.write(0, col_num, col_name, header_format)
 
                     last_col_index = df_result.columns.get_loc('Rank')
-                    for row_num, rec in enumerate(df_result['Remarks'], start=1):
+                    for row_num, rec in enumerate(df_result['Recommendation (Average Cost Candidate)'], start=1):
                         row_format = focus_format if rec != '-' else regular_format
                         for col in range(len(df_result.columns)):
                             value = df_result.iloc[row_num - 1, col]
