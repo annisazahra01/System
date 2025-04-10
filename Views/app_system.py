@@ -337,7 +337,7 @@ if dsrp_file and pio_file and segment_file and tooling_file:
                         worksheet.set_column(col_num, col_num, max_len)
                         worksheet.write(0, col_num, col_name, header_format)
 
-                    last_col_index = df_summary.columns.get_loc('Volume Achievement (%)')
+                    last_col_index = df_result.columns.get_loc('Volume Achievement (%)')
                     for row_num, rec in enumerate(df_result['Recommendation (Average Cost Candidate)'], start=1):
                         row_format = focus_format if rec != '-' else regular_format
                         for col in range(last_col_index + 1):
