@@ -116,7 +116,7 @@ def Dataframe(dsrp_file, pio_file, segment_file, tooling_file): ## Function data
     df_pio['Model Type Clean'] = df_pio['Model Type'].str.lower().str.strip().str.replace(' +', ' ', regex=True)
     df_combine_1 = pd.merge(
         df_pio,
-        df_dsrp_filtered[['Model Name DSRP', 'Model Name Clean', 'DKI']],
+        df_dsrp_filtered[['Model Name DSRP', 'Model Name Clean', 'DKI', 'Volume Wholesales']],
         left_on='Model Type Clean',
         right_on='Model Name Clean',
         how='left'
@@ -161,7 +161,6 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
     segment_order = ['A', 'B', 'C', 'D', 'Comm']
     df['Segment'] = pd.Categorical(df['Segment'], categories=segment_order, ordered=True)
     df = df.sort_values(by=['Group', 'Segment', 'Total Margin', 'OTR'])
-    print(df.columns)
 
     final_rows = []
     group_number = 1
