@@ -237,13 +237,17 @@ def Recommendation_Program(df, model_to_margin, grouping_type="Electrical"):
         df_recom['Volume'] = ''
         df_recom['Wire'] = ''
         df_recom['Spec'] = ''
+    if grouping_type == 'Multimedia':
+        df_recom['Volume'] = ''
+        df_recom['Wire'] = ''
+        df_recom['Spec'] = ''
     elif grouping_type == 'Textile':
         df_recom['Dimensi'] = ''
         df_recom['Material'] = ''
         df_recom['Painting Condition'] = ''
         df_recom['Spec'] = ''
     elif grouping_type == 'Safety':
-        df_recom['Type'] = ''
+        df_recom['Part Type'] = ''
         df_recom['Spec'] = ''
     return df_recom
 
@@ -293,17 +297,21 @@ def Summary_Recommendation_Report(df, grouping_type="Electrical"):
 
     # Tambahkan kolom tambahan sesuai grouping_type
     if grouping_type == 'Electrical':
-        df_summary['Volume'] = ''
-        df_summary['Wire'] = ''
-        df_summary['Spec'] = ''
+        df_recom['Volume'] = ''
+        df_recom['Wire'] = ''
+        df_recom['Spec'] = ''
+    if grouping_type == 'Multimedia':
+        df_recom['Volume'] = ''
+        df_recom['Wire'] = ''
+        df_recom['Spec'] = ''
     elif grouping_type == 'Textile':
-        df_summary['Dimensi'] = ''
-        df_summary['Material'] = ''
-        df_summary['Painting Condition'] = ''
-        df_summary['Spec'] = ''
+        df_recom['Dimensi'] = ''
+        df_recom['Material'] = ''
+        df_recom['Painting Condition'] = ''
+        df_recom['Spec'] = ''
     elif grouping_type == 'Safety':
-        df_summary['Type'] = ''
-        df_summary['Spec'] = ''
+        df_recom['Part Type'] = ''
+        df_recom['Spec'] = ''
     return df_summary
 
 # === PEMBUATAN USER INTERFACE ===
