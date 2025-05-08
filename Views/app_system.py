@@ -136,13 +136,13 @@ def Dataframe(dsrp_file, pio_file, segment_file, tooling_file): ## Function data
     df_tooling = df_tooling.drop(df_tooling.columns[0], axis=1)
     df_tooling.columns = df_tooling.iloc[0]
     df_tooling = df_tooling[1:].reset_index(drop=True)
-    cols_to_clean = ['Tooling Cost/Unit', 'Volume Achievement (%)']
+    cols_to_clean = ['Monthly Volume Planning','Volume Achievement (%)', 'Total Tooling Cost', 'Tooling Cost/Unit']
     df_tooling[cols_to_clean] = df_tooling[cols_to_clean].replace({0: np.nan, '-': np.nan})
     df_tooling[cols_to_clean] = df_tooling[cols_to_clean].apply(pd.to_numeric, errors='coerce')
 
     df_combine = pd.merge(
         df_combine_1,
-        df_tooling[['Part Number', 'Tooling Cost/Unit', 'Volume Achievement (%)']],
+        df_tooling[['Part Number', 'Monthly Volume Planning','Volume Achievement (%)', 'Total Tooling Cost', 'Tooling Cost/Unit']],
         on='Part Number',
         how='left'  # gunakan 'left' supaya data dari df_combine tetap lengkap)
     )
