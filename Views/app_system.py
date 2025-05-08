@@ -146,8 +146,7 @@ def Dataframe(dsrp_file, pio_file, segment_file, tooling_file): ## Function data
         on='Part Number',
         how='left'  # gunakan 'left' supaya data dari df_combine tetap lengkap)
     )
-    df_combine['Volume Achievement (%)'] = df_combine['Volume Achievement (%)'].apply(
-        lambda x: float(round(x*100)) if pd.notna(x) else float('NaN')
+    df_combine['Volume Achievement (%)'] = df_combine['Volume Achievement (%)'].apply(lambda x: float(round(x*100)) if pd.notna(x) else float('NaN'))
     
     df_combine.columns = df_combine.columns.str.replace('\n', ' ', regex=True)
     
