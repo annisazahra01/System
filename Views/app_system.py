@@ -272,8 +272,7 @@ def Summary_Recommendation_Report(df, grouping_type="Electrical"):
     df_summary['Notes'] = ''  # Tambah kolom kosong
 
     # Kolom yang ingin dipindahkan ke belakang
-    display(df_summary.columns)
-    cols_to_move = ['Volume Achievement (%)', 'Tooling Cost/Unit']
+    cols_to_move = ['Monthly  Volume Planning', 'Volume Achievement (%)', 'Total Tooling Cost', 'Tooling Cost/Unit']
     # Sisanya (tanpa dua kolom tadi)
     other_cols = [col for col in df_summary.columns if col not in cols_to_move]
     # Gabungkan: kolom lainnya dulu, baru dua kolom tersebut di akhir
